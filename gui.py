@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
     QComboBox, QColorDialog, QSlider, QMenu, QFileDialog
 )
 from PyQt5.QtGui import QFont, QIcon, QColor
-from PyQt5.QtCore import Qt, QProcess, QSettings, pyqtSignal
+from PyQt5.QtCore import Qt, QProcess, QSettings, pyqtSignal, QTimer
 import sys, os, re, copy
 
 
@@ -780,7 +780,7 @@ class DevicePage(QWidget):
             clock_style, show_date, show_24hr, color, ok_pressed = dialog.get_options()
 
             if ok_pressed:
-                args = ["--address", self.mac_address, "--clock", str(self.clock_styles.index(clock_style)), "--sync-time"]
+                args = ["--address", self.mac_address, "--clock", str(self.clock_styles.index(clock_style))]
                 if show_date:
                     args.append("--clock-with-date")
                 if show_24hr:
