@@ -222,21 +222,25 @@ patterns = {
 }
 
 
-def draw_digit(draw, x_offset, y_offset, digit):
+def draw_digit(draw, x_offset, y_offset, digit, scale=1):
     pattern = digits[digit]
     for y, row in enumerate(pattern):
         for x, pixel in enumerate(row):
             if pixel == "1":
-                draw.point((x + x_offset, y + y_offset), fill=(255,255,255))
+                for sx in range(scale):
+                    for sy in range(scale):
+                        draw.point((x*scale + x_offset + sx, y*scale + y_offset + sy), fill=(255,255,255))
 
-def draw_colored_pattern(draw, x_offset, y_offset, key):
+def draw_colored_pattern(draw, x_offset, y_offset, key, scale=1):
     if key not in patterns:
         raise ValueError(f"The pattern '{key}' is not defined.")
     pattern = patterns[key]
     for y, row in enumerate(pattern):
         for x, pixel in enumerate(row):
             if pixel in colors:
-                draw.point((x + x_offset, y + y_offset), fill=colors[pixel])
+                for sx in range(scale):
+                    for sy in range(scale):
+                        draw.point((x*scale + x_offset + sx, y*scale + y_offset + sy), fill=colors[pixel])
 
 
 def get_current_weather_data(city_query, api_key):
@@ -292,6 +296,7 @@ def get_weather_img(city_query:str, api_key:str, pixels:int) -> str:
     if None in {city_query, api_key, pixels}:
         raise Exception("Insufficient args given.")
     pixels = int(pixels)
+    scale = pixels // 16
     # Get weather data
     data_api = get_current_weather_data(city_query, api_key)
 
@@ -310,9 +315,9 @@ def get_weather_img(city_query:str, api_key:str, pixels:int) -> str:
     second_digit = str(temperature_celsius).zfill(2)[1]
 
     # Draw temperature and weather
-    draw_digit(draw, 3, 8, first_digit)
-    draw_digit(draw, 9, 8, second_digit)
-    draw_colored_pattern(draw, 4, 0, weather_category)
+    draw_digit(draw, 3*scale, 8*scale, first_digit, scale)
+    draw_digit(draw, 9*scale, 8*scale, second_digit, scale)
+    draw_colored_pattern(draw, 4*scale, 0*scale, weather_category, scale)
 
     # Save the img
     file_path = "weather.png"
@@ -325,6 +330,7 @@ def get_weather_gif(city_query:str, api_key:str, pixels:int) -> str:
     if None in {city_query, api_key, pixels}:
         raise Exception("Insufficient args given.")
     pixels = int(pixels)
+    scale = pixels // 16
     data_api = get_current_weather_data_forecast(city_query, api_key=api_key)
     current_hour = int(data_api["location"]["localtime"].split()[1].split(":")[0])
 
@@ -357,11 +363,11 @@ def get_weather_gif(city_query:str, api_key:str, pixels:int) -> str:
         second_digit = str(temperature_celsius).zfill(2)[1]
         # Determine the digit color (red for the first image, white for others)
 
-        draw.rectangle([0, 15, i, 15], fill=(255, 255, 255))  #horizontal line to draw the hour, each point is the index of the hour
+        draw.rectangle([0, 15*scale, i*scale, 15*scale], fill=(255, 255, 255))  #horizontal line to draw the hour, each point is the index of the hour
 
-        draw_digit(draw, 3, 8, first_digit)
-        draw_digit(draw, 9, 8, second_digit)
-        draw_colored_pattern(draw, 4, 0, weather_category)
+        draw_digit(draw, 3*scale, 8*scale, first_digit, scale)
+        draw_digit(draw, 9*scale, 8*scale, second_digit, scale)
+        draw_colored_pattern(draw, 4*scale, 0*scale, weather_category, scale)
 
         # Save the gif with a unique name
         if img.getbbox():
